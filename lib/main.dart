@@ -1,7 +1,8 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:taxis_app/Business/Provider/TaxiProvider.dart';
 import 'package:taxis_app/Core/User_Preferens.dart';
-import 'package:taxis_app/Pages/HomePage.dart';
 import 'package:taxis_app/Pages/SplashScreen.dart';
  
 void main(){
@@ -27,9 +28,14 @@ class MyApp extends StatelessWidget {
         }
         // Una vez completado, muestre su solicitud
         if (snapshot.connectionState == ConnectionState.done) {
-          return MaterialApp(
-            title: 'Material App',
-            home: SplashScreenPage(),
+          return MultiProvider(
+            providers: [
+              ChangeNotifierProvider(create: (_) => TaxiProvider()),
+            ],
+            child: MaterialApp(
+              title: 'Material App',
+              home: SplashScreenPage()
+            ),
           );
         }
         // De lo contrario, muestre algo mientras espera a que se complete la inicialización

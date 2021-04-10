@@ -1,4 +1,4 @@
-package com.example.taxis_app
+package com.example.taxis_app_admin
 
 import io.flutter.embedding.android.FlutterActivity
 

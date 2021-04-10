@@ -40,7 +40,7 @@ class RegisterPage extends StatelessWidget {
               onPressed: ()async{
                 Flushbar(
                   title:  "Cargando",
-                  message:  "Espere un momento mientras procesamos el pedido",
+                  message:  "Espere un momento mientras procesamos la solicitud",
                   duration:  Duration(seconds: 3),
                   backgroundColor: Colors.green,
                 )..show(context);
@@ -49,6 +49,7 @@ class RegisterPage extends StatelessWidget {
                   pref.userEmail = user.email;
                   pref.userName = user.displayName;
                   pref.userPhotoUrl = user.photoURL;
+                  pref.userFirebaseId = user.uid;
                   Navigator.push(
                     context, 
                     MaterialPageRoute(builder: (BuildContext context) => HomePage())
