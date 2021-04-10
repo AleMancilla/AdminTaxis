@@ -8,6 +8,12 @@ class TaxiModel {
   double speed;
   double latitude;
   double longitude;
+  String idFirebase;
+  String userEmail;
+  String userName;
+  String userPhoto;
+  String matricula;
+
 
   TaxiModel.fromJson(Map json){
     this.heading        = double.parse(json['heading']);
@@ -19,6 +25,11 @@ class TaxiModel {
     this.speed          = double.parse(json['speed']);
     this.latitude       = double.parse(json['latitude']);
     this.longitude      = double.parse(json['longitude']);
+    this.idFirebase     = json['idFirebase'];
+    this.userEmail      = json['userEmail'];
+    this.userName       = json['userName'];
+    this.userPhoto      = json['userPhoto'];
+    this.matricula      = json['matricula'];
   }
 
   

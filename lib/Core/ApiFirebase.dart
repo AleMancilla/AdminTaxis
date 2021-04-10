@@ -68,4 +68,30 @@ class ApiFirebase {
     });
   }
 
+  consultaTaxisByMatricula(TaxiProvider taxiProvider,String matricula){
+    List<TaxiModel> listaTaxis = [];
+    FirebaseFirestore.instance
+    .collection('taxis').where('matricula',isEqualTo: matricula)
+    .snapshots().listen((querySnapshot) {
+      print("""
+      ================================================================
+      """); 
+      querySnapshot.docs.forEach((doc) {
+      print("""
+      ##########
+      """); 
+
+      TaxiModel taxiModel = TaxiModel.fromJson(doc.data());
+
+      print(doc.data());
+      listaTaxis.add(taxiModel);
+      }); 
+      taxiProvider.listaTaxis = listaTaxis;
+      // return listaOrderFinalModel;
+    }).onError((c){
+      print("ERROR $c");
+      // return listaOrderFinalModel;
+    });
+  }
+
 }

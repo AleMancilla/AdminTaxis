@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:geolocator/geolocator.dart';
@@ -12,6 +11,10 @@ import 'package:taxis_app/Core/ApiFirebase.dart';
 import 'package:taxis_app/Core/ApiUbication.dart';
 import 'package:taxis_app/Core/User_Preferens.dart';
 class MapSendLocation extends StatefulWidget {
+
+  final String matricula;
+
+  const MapSendLocation({Key key, this.matricula}) : super(key: key);
 
   @override
   _MapSendLocationState createState() => _MapSendLocationState();
@@ -41,7 +44,11 @@ class _MapSendLocationState extends State<MapSendLocation> {
   void initState() { 
     super.initState();
     taxiProvider = Provider.of<TaxiProvider>(context,listen: false);
-    apiFirebase.consultaTaxis(taxiProvider);
+    if(this.widget.matricula != null){
+      apiFirebase.consultaTaxisByMatricula(taxiProvider,this.widget.matricula);
+    }else{
+      apiFirebase.consultaTaxis(taxiProvider);
+    }
     // getUbication();
     cargarMarker();
     // positionStream = Geolocator.getPositionStream(
@@ -114,7 +121,12 @@ class _MapSendLocationState extends State<MapSendLocation> {
 
   @override
   void dispose() { 
-    positionStream.cancel();
+    try {
+      positionStream.cancel();
+      // mapController.dispose();
+      _markers={};
+    } catch (e) {
+    }
     super.dispose();
   }
 
@@ -134,18 +146,25 @@ class _MapSendLocationState extends State<MapSendLocation> {
 
   readMarkers(){
     _markers={};
-    setState(() {
-      
-    });
     taxiProvider.listaTaxis?.forEach((element) {
       print("####___");
       _markers.add(
         Marker(
-          markerId: MarkerId("prueba"),
+          markerId: MarkerId(element.matricula),
           position: LatLng(element.latitude,element.longitude ),
           icon: markerBitMap,
+          infoWindow: InfoWindow(title: '${element.matricula}', snippet: '${element.userName}')
           )
         );
+        if(this.widget.matricula!=null){
+          try {
+            print("==ENTRO  == ${this.widget.matricula} == $mapController == ${element.latitude} == ${element.longitude}");
+            mapController.animateCamera(CameraUpdate.newCameraPosition(
+            CameraPosition(target: LatLng(element.latitude,element.longitude ), zoom: 16),
+            )); 
+          } catch (e) {
+          }
+        }
     });
 
     setState(() {
@@ -159,7 +178,7 @@ class _MapSendLocationState extends State<MapSendLocation> {
       print("===> $position");
       try {
         mapController.animateCamera(CameraUpdate.newCameraPosition(
-        CameraPosition(target: LatLng(position.latitude,position.longitude ), zoom: 16),
+        CameraPosition(target: LatLng(position.latitude,position.longitude ), zoom: 14),
         )); 
       } catch (e) {
       }
@@ -184,11 +203,14 @@ class _MapSendLocationState extends State<MapSendLocation> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              if(this.widget.matricula != null ) Text("MATRICULA BUSCADA: ${this.widget.matricula}",
+                style: TextStyle(fontSize: 24,color: Colors.blueGrey,fontWeight: FontWeight.w500),
+              ),
               Expanded(
                 child: GoogleMap(
                   mapType: MapType.normal,
                   initialCameraPosition: positionMap,
-                  markers: _markers,
+                  markers: _markers??{},
                   myLocationEnabled: true,
                   trafficEnabled: false,
                   indoorViewEnabled: false,
@@ -200,23 +222,29 @@ class _MapSendLocationState extends State<MapSendLocation> {
                   onMapCreated: (controller) {
                     // _controller.complete(controller);
                     mapController = controller;
-                    rootBundle.loadString('assets/mapStyle.txt').then((string) {
-                      mapController.setMapStyle(string);  
-                    });
+                    try {
+                      rootBundle.loadString('assets/mapStyle.txt').then((string) {
+                        try {
+                          mapController.setMapStyle(string);  
+                        } catch (e) {
+                        }
+                      });
+                    } catch (e) {
+                    }
                   },
                 ),
               ),
-              Text("  == Datos transferidos           = $i ="),
-              if(position?.latitude!=null)Text("  == latitude                = ${position.latitude} ="),
-              if(position?.longitude!=null)Text("  == longitude              = ${position.longitude} ="),
-              if(position?.floor!=null)Text("  == floor                      = ${position.floor} ="),
-              if(position?.accuracy!=null)Text("  == accuracy                = ${position.accuracy} ="),
-              if(position?.altitude!=null)Text("  == altitude                   = ${position.altitude} ="),
-              if(position?.heading!=null)Text("  == heading                   = ${position.heading} ="),
-              if(position?.isMocked!=null)Text("  == isMocked                = ${position.isMocked} ="),
-              if(position?.speed!=null)Text("  == speed                      = ${position.speed} "),
-              if(position?.speedAccuracy!=null)Text("  == speedAccuracy      = ${position.speedAccuracy} ="),
-              if(position?.timestamp!=null)Text("  == timestamp              = ${position.timestamp} ="),
+              // Text("  == Datos transferidos           = $i ="),
+              // if(position?.latitude!=null)Text("  == latitude                = ${position.latitude} ="),
+              // if(position?.longitude!=null)Text("  == longitude              = ${position.longitude} ="),
+              // if(position?.floor!=null)Text("  == floor                      = ${position.floor} ="),
+              // if(position?.accuracy!=null)Text("  == accuracy                = ${position.accuracy} ="),
+              // if(position?.altitude!=null)Text("  == altitude                   = ${position.altitude} ="),
+              // if(position?.heading!=null)Text("  == heading                   = ${position.heading} ="),
+              // if(position?.isMocked!=null)Text("  == isMocked                = ${position.isMocked} ="),
+              // if(position?.speed!=null)Text("  == speed                      = ${position.speed} "),
+              // if(position?.speedAccuracy!=null)Text("  == speedAccuracy      = ${position.speedAccuracy} ="),
+              // if(position?.timestamp!=null)Text("  == timestamp              = ${position.timestamp} ="),
 
             ],
           ),

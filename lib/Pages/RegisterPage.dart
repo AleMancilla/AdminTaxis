@@ -18,9 +18,9 @@ class RegisterPage extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Image.asset(
-              'src/images/iconTaxi.png',
-              width: 100,
-              height: 100,
+              'src/icons/iconoApp.png',
+              width: 200,
+              height: 200,
             ),
             _buttonLoginGoogle(context)
             // Container(
@@ -50,7 +50,7 @@ class RegisterPage extends StatelessWidget {
                   pref.userName = user.displayName;
                   pref.userPhotoUrl = user.photoURL;
                   pref.userFirebaseId = user.uid;
-                  Navigator.push(
+                  Navigator.pushReplacement(
                     context, 
                     MaterialPageRoute(builder: (BuildContext context) => HomePage())
                   );
