@@ -3,8 +3,8 @@ import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:location/location.dart';
 import 'package:provider/provider.dart';
 import 'package:taxis_app/Business/Provider/TaxiProvider.dart';
 import 'package:taxis_app/Core/ApiFirebase.dart';
@@ -22,7 +22,7 @@ class MapSendLocation extends StatefulWidget {
 
 class _MapSendLocationState extends State<MapSendLocation> {
   UserPreferences prefs = UserPreferences();
-  Position position;
+  LocationData position;
   ApiUbication apiUbication = ApiUbication();
 
   ApiFirebase apiFirebase = ApiFirebase();
@@ -36,7 +36,7 @@ class _MapSendLocationState extends State<MapSendLocation> {
   //   print('on Pause');
   // }
   // 
-  StreamSubscription<Position> positionStream;
+  StreamSubscription<LocationData> positionStream;
   int i = 0;
 
   
@@ -133,7 +133,9 @@ class _MapSendLocationState extends State<MapSendLocation> {
 
   BitmapDescriptor markerBitMap;
   cargarMarker()async{
-     markerBitMap = await BitmapDescriptor.fromAssetImage(ImageConfiguration(devicePixelRatio: 2.5),'src/icons/car.png');
+     markerBitMap = await BitmapDescriptor.fromAssetImage(
+       ImageConfiguration(
+         devicePixelRatio: 2.5),'src/icons/carTop.png');
   }
 
   @override
@@ -153,7 +155,39 @@ class _MapSendLocationState extends State<MapSendLocation> {
           markerId: MarkerId(element.matricula),
           position: LatLng(element.latitude,element.longitude ),
           icon: markerBitMap,
-          infoWindow: InfoWindow(title: '${element.matricula}', snippet: '${element.userName}')
+          infoWindow: InfoWindow(
+            title: '${element.matricula}', 
+            snippet: '${element.userName}',
+            onTap: () {
+              try {
+                showDialog(context: context, 
+                builder: (context) {
+                  return AlertDialog(
+                    title: Container(
+                      width: 100,
+                      height: 100,
+                      alignment: Alignment.center,
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(100),
+                        child: Image.network(
+                          element.userPhoto,
+                          fit: BoxFit.cover,
+                          width: 100,
+                          height: 100,
+                        ),
+                      ),
+                    ),
+                    content: Text("hola"),
+                  );
+                },
+                );
+              } catch (e) {
+              }
+            },
+          ),
+
+          rotation: element.heading,
+          anchor: Offset(0.5, 0.5),
           )
         );
         if(this.widget.matricula!=null){
@@ -215,7 +249,7 @@ class _MapSendLocationState extends State<MapSendLocation> {
                   trafficEnabled: false,
                   indoorViewEnabled: false,
                   myLocationButtonEnabled: true,
-                  minMaxZoomPreference: MinMaxZoomPreference(12, 18.6),
+                  minMaxZoomPreference: MinMaxZoomPreference(12, 20.5),
                   rotateGesturesEnabled: false,
                   scrollGesturesEnabled: true,
                   tiltGesturesEnabled: false,
